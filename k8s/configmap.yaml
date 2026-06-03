@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wargacare-config
+  namespace: wargacare
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mariadb://mariadb-service:3306/db"
+  SPRING_DATASOURCE_USERNAME: "db"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"

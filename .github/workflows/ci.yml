@@ -1,0 +1,49 @@
+name: WargaCare CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: db
+          MARIADB_USER: db
+          MARIADB_PASSWORD: db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Build and Test with Maven
+      run: mvn clean verify -B
+      env:
+        SPRING_DATASOURCE_URL: jdbc:mariadb://localhost:3306/db
+        SPRING_DATASOURCE_USERNAME: db
+        SPRING_DATASOURCE_PASSWORD: db
+        JWT_SECRET: wargacare-github-actions-secret-key-256bit-long
+        JWT_EXPIRATION: 3600000
+
+    - name: Build Docker Image
+      run: docker build -t wargacare-backend:latest .
