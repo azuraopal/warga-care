@@ -52,4 +52,4 @@ SPRING_DATASOURCE_USERNAME="db" \
 SPRING_DATASOURCE_PASSWORD="db" \
 JWT_SECRET="wargacare-ddev-development-secret-key-256bit-long" \
 JWT_EXPIRATION="86400000" \
-mvn spring-boot:run
+mvn clean spring-boot:run

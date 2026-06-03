@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS reports (
+    id            BIGINT          NOT NULL AUTO_INCREMENT,
+    title         VARCHAR(200)    NOT NULL,
+    description   TEXT            NOT NULL,
+    category      VARCHAR(30)     NOT NULL,
+    status        VARCHAR(20)     NOT NULL DEFAULT 'PENDING',
+    location      VARCHAR(255)    NULL,
+    rt            VARCHAR(10)     NULL,
+    rw            VARCHAR(10)     NULL,
+    admin_notes   TEXT            NULL,
+    reporter_id   BIGINT          NOT NULL,
+    created_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_reports_category (category),
+    INDEX idx_reports_status (status),
+    INDEX idx_reports_reporter (reporter_id),
+    INDEX idx_reports_rt_rw (rt, rw),
+    CONSTRAINT fk_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

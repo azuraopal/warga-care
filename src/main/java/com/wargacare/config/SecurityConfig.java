@@ -57,6 +57,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/announcements/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.GET, "/api/reports/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reports").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/reports/*/status").hasRole("ADMIN_RT")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
