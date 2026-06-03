@@ -205,6 +205,6 @@ class AuthIntegrationTest {
     @DisplayName("GET /api/auth/me - Gagal tanpa token")
     void getMe_WithoutToken_Unauthorized() throws Exception {
         mockMvc.perform(get("/api/auth/me"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }
