@@ -1,0 +1,30 @@
+name: warga-care
+type: php
+docroot: ""
+php_version: "8.3"
+webserver_type: nginx-fpm
+router_http_port: "8081"
+router_https_port: "8444"
+xdebug_enabled: false
+additional_hostnames: []
+additional_fqdns: []
+database:
+  type: mariadb
+  version: "10.11"
+
+web_extra_exposed_ports:
+  - name: spring-boot
+    container_port: 8080
+    http_port: 8082
+    https_port: 8445
+
+web_environment:
+  - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/db
+  - SPRING_DATASOURCE_USERNAME=db
+  - SPRING_DATASOURCE_PASSWORD=db
+  - JWT_SECRET=wargacare-ddev-development-secret-key-256bit
+  - JWT_EXPIRATION=86400000
+
+hooks:
+  post-start:
+    - exec: "echo 'WargaCare DDEV environment started!'"

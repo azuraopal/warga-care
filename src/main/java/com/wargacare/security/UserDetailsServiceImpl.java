@@ -1,0 +1,37 @@
+package com.wargacare.security;
+
+import com.wargacare.user.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Pengguna dengan email " + email + " tidak ditemukan"));
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.getIsActive(),
+                true,
+                true,
+                true,
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
+    }
+}

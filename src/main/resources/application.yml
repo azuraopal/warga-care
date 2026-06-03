@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: wargacare
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://db:3306/db}
+    username: ${SPRING_DATASOURCE_USERNAME:db}
+    password: ${SPRING_DATASOURCE_PASSWORD:db}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+jwt:
+  secret: ${JWT_SECRET:change-this-secret-key-must-be-at-least-256-bits-long}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+logging:
+  level:
+    com.wargacare: DEBUG
+    org.springframework.security: INFO
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha

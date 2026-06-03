@@ -1,0 +1,59 @@
+# ============================================================
+# WargaCare — .gitignore
+# ============================================================
+
+# Maven build output
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven wrapper
+.mvn/
+
+# IDE — IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# IDE — VS Code
+.vscode/
+
+# IDE — Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables — JANGAN COMMIT!
+.env
+.env.local
+.env.production
+*.env
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+spring-shell.log
+
+# Docker volumes
+docker/data/
+
+# Kubernetes secrets (jangan commit secret asli)
+k8s/secret.yaml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
