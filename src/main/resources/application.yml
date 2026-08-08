@@ -3,10 +3,10 @@ spring:
     name: wargacare
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://db:3306/db}
-    username: ${SPRING_DATASOURCE_USERNAME:db}
-    password: ${SPRING_DATASOURCE_PASSWORD:db}
-    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mac}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -14,7 +14,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MariaDBDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   flyway:

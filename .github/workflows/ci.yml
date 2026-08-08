@@ -11,17 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
-      mariadb:
-        image: mariadb:10.11
+      postgres:
+        image: postgres:16-alpine
         env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: db
-          MARIADB_USER: db
-          MARIADB_PASSWORD: db
+          POSTGRES_DB: wargacare
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-cmd="pg_isready -U postgres -d wargacare"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -39,9 +38,9 @@ jobs:
     - name: Build and Test with Maven
       run: mvn clean verify -B
       env:
-        SPRING_DATASOURCE_URL: jdbc:mariadb://localhost:3306/db
-        SPRING_DATASOURCE_USERNAME: db
-        SPRING_DATASOURCE_PASSWORD: db
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/wargacare
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: postgres
         JWT_SECRET: wargacare-github-actions-secret-key-256bit-long
         JWT_EXPIRATION: 3600000
 

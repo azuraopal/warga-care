@@ -1,11 +1,11 @@
 # WargaCare — Sistem Pengaduan & Bantuan Warga RT/RW
 
-> Backend REST API untuk sistem pengaduan dan bantuan warga RT/RW, dibangun menggunakan Java 21, Spring Boot, MariaDB, dan DDEV.
+> Backend REST API untuk sistem pengaduan dan bantuan warga RT/RW, dibangun menggunakan Java 21, Spring Boot, PostgreSQL, dan Docker.
 
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=java)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green?logo=springboot)](https://spring.io/projects/spring-boot)
-[![MariaDB](https://img.shields.io/badge/MariaDB-10.11-blue?logo=mariadb)](https://mariadb.org/)
-[![DDEV](https://img.shields.io/badge/DDEV-Local%20Dev-purple)](https://ddev.readthedocs.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Local%20Dev-blue?logo=docker)](https://docs.docker.com/)
 
 ---
 
@@ -17,76 +17,47 @@
 | Spring Boot 3.3 | Framework backend |
 | Spring Security + JWT | Autentikasi dan otorisasi |
 | Spring Data JPA + Hibernate | ORM untuk akses database |
-| MariaDB 10.11 | Database relasional |
+| PostgreSQL 16 | Database relasional |
 | Flyway | Database migration |
 | Swagger / OpenAPI 3 | Dokumentasi REST API |
-| DDEV | Local development environment |
+| Docker | Local development environment |
 | Docker | Containerization |
 | Kubernetes | Orchestration (portfolio) |
 | GitHub Actions | CI/CD pipeline |
 
 ---
 
-## 🚀 Cara Menjalankan dengan DDEV (Linux Fedora)
+## 🚀 Cara Menjalankan dengan PostgreSQL Lokal
 
 ### Prasyarat
-- [DDEV](https://ddev.readthedocs.io/en/stable/users/install/ddev-installation/) terinstall
-- [Docker](https://docs.docker.com/engine/install/fedora/) terinstall dan berjalan
+- PostgreSQL terinstall dan berjalan
+- Database `wargacare` sudah dibuat
 - Java 21 JDK (untuk development dari host)
-- Maven (opsional, bisa menggunakan `ddev exec mvn`)
+- Maven (opsional, bisa menggunakan `./run.sh`)
 
-### 1. Setup DDEV
-
-```bash
-# Masuk ke direktori project
-cd /home/azuraopal/Project/warga-care
-
-# Inisialisasi DDEV (sudah ada config.yaml, langsung start)
-ddev start
-```
-
-### 2. Cek Status DDEV
+### 1. Set koneksi database
 
 ```bash
-# Lihat status semua service (URL, port, database info)
-ddev describe
+# Sesuaikan kredensial dengan PostgreSQL lokal kamu
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/wargacare
+export SPRING_DATASOURCE_USERNAME=postgres
+export SPRING_DATASOURCE_PASSWORD=postgres
+export JWT_SECRET=wargacare-local-secret-key-256bit-long
 ```
 
-Output yang diharapkan:
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│ Project: warga-care                                                   │
-│ Status:  running                                                      │
-│ Services: web, db                                                     │
-│ MariaDB:  db:3306 (internal) | localhost:PORT (host)                 │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-### 3. Jalankan Spring Boot
-
-**Cara A: Dari dalam container DDEV** (database host = `db`)
+### 2. Jalankan aplikasi
 
 ```bash
-# Jalankan Spring Boot di dalam container
-ddev exec mvn spring-boot:run
+./run.sh
 ```
 
-**Cara B: Dari host Fedora / IDE** (database host = `localhost:PORT`)
+Kalau kamu mau menjalankan langsung tanpa script:
 
 ```bash
-# Cek port MariaDB dari host
-ddev describe | grep MariaDB
-
-# Set environment variable sesuai port yang muncul (misal 54321)
-export SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:54321/db
-export SPRING_DATASOURCE_USERNAME=db
-export SPRING_DATASOURCE_PASSWORD=db
-
-# Jalankan dari host
 mvn spring-boot:run
 ```
 
-> **💡 Tip IntelliJ IDEA / VS Code**: Set environment variable di Run Configuration agar tidak perlu export setiap saat.
+> **💡 Tip IntelliJ IDEA / VS Code**: Set environment variable di Run Configuration agar tidak perlu export setiap kali.
 
 ### 4. Akses Aplikasi
 
@@ -231,9 +202,6 @@ curl -X GET http://localhost:8080/api/auth/me \
 # Jalankan semua test (membutuhkan Docker untuk Testcontainers)
 mvn test
 
-# Atau via DDEV
-ddev exec mvn test
-
 # Jalankan hanya unit test
 mvn test -Dtest=AuthServiceTest
 
@@ -241,14 +209,14 @@ mvn test -Dtest=AuthServiceTest
 mvn test -Dtest=AuthIntegrationTest
 ```
 
-> **Testcontainers** akan otomatis menarik image `mariadb:10.11` dari Docker Hub saat test dijalankan.
+> **Testcontainers** akan otomatis menarik image `postgres:16-alpine` dari Docker Hub saat test dijalankan.
 
 ---
 
 ## 🐳 Alternatif: Docker Compose (tanpa DDEV)
 
 ```bash
-# Jalankan Spring Boot + MariaDB dengan docker-compose
+# Jalankan Spring Boot + PostgreSQL dengan docker-compose
 docker-compose up -d
 
 # Cek log
@@ -323,11 +291,11 @@ warga-care/
 
 ## 🔧 Environment Variables
 
-| Variable | Default (DDEV) | Keterangan |
+| Variable | Default (local) | Keterangan |
 |---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:mariadb://db:3306/db` | Database URL |
-| `SPRING_DATASOURCE_USERNAME` | `db` | Database username |
-| `SPRING_DATASOURCE_PASSWORD` | `db` | Database password |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/wargacare` | Database URL |
+| `SPRING_DATASOURCE_USERNAME` | `postgres` | Database username |
+| `SPRING_DATASOURCE_PASSWORD` | `postgres` | Database password |
 | `JWT_SECRET` | *(wajib diset di production)* | JWT signing secret |
 | `JWT_EXPIRATION` | `86400000` | Token expiry dalam ms (24 jam) |
 
@@ -360,7 +328,7 @@ ddev delete --omit-snapshot  # Hapus project DDEV (hati-hati!)
 - Jangan pernah ubah migration file yang sudah dijalankan di production
 
 ### JWT Secret
-- Untuk development, gunakan secret yang ada di `.ddev/config.yaml`
+- Untuk development, set `JWT_SECRET` lewat environment variable atau Run Configuration
 - Untuk production, **wajib** set `JWT_SECRET` via environment variable
 - Secret harus minimal 256-bit (32 karakter) untuk HMAC-SHA256
 
@@ -370,4 +338,4 @@ ddev delete --omit-snapshot  # Hapus project DDEV (hati-hati!)
 
 ---
 
-*Dibuat untuk portofolio Backend Developer — Java, Spring Boot, MariaDB, Docker, Kubernetes*
+*Dibuat untuk portofolio Backend Developer — Java, Spring Boot, PostgreSQL, Docker, Kubernetes*
