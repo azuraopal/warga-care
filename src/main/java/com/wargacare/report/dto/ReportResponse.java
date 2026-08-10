@@ -24,6 +24,7 @@ public class ReportResponse {
     private String rt;
     private String rw;
     private String adminNotes;
+    private String completionEvidence;
     private ReporterInfo reporter;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

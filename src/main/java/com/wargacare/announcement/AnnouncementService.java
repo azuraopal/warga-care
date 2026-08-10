@@ -71,6 +71,13 @@ public class AnnouncementService {
     }
 
     @Transactional
+    public AnnouncementResponse togglePin(Long id) {
+        Announcement announcement = findById(id);
+        announcement.setIsPinned(!Boolean.TRUE.equals(announcement.getIsPinned()));
+        return mapToResponse(announcementRepository.save(announcement));
+    }
+
+    @Transactional
     public void delete(Long id) {
         Announcement announcement = findById(id);
         announcementRepository.delete(announcement);

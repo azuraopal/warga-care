@@ -17,6 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/reports")
 @Tag(name = "Reports", description = "Endpoint untuk manajemen laporan pengaduan warga")
@@ -27,6 +31,52 @@ public class ReportController {
 
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
+    }
+
+    @GetMapping("/categories")
+    @Operation(summary = "Daftar kategori laporan", description = "Mendapatkan daftar semua kategori laporan pengaduan")
+    public ResponseEntity<ApiResponse<List<Map<String, String>>>> getCategories() {
+        List<Map<String, String>> categories = Arrays.stream(ReportCategory.values())
+                .map(cat -> Map.of(
+                        "value", cat.name(),
+                        "label", getCategoryLabel(cat)
+                ))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success("Daftar kategori berhasil diambil", categories));
+    }
+
+    @GetMapping("/statuses")
+    @Operation(summary = "Daftar status laporan", description = "Mendapatkan daftar semua status laporan pengaduan")
+    public ResponseEntity<ApiResponse<List<Map<String, String>>>> getStatuses() {
+        List<Map<String, String>> statuses = Arrays.stream(ReportStatus.values())
+                .map(st -> Map.of(
+                        "value", st.name(),
+                        "label", getStatusLabel(st)
+                ))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success("Daftar status berhasil diambil", statuses));
+    }
+
+    private String getCategoryLabel(ReportCategory cat) {
+        return switch (cat) {
+            case JALAN_RUSAK -> "Jalan Rusak";
+            case SAMPAH -> "Pengelolaan Sampah";
+            case LAMPU_MATI -> "Lampu Penerangan Jalan";
+            case BANJIR -> "Banjir / Drainase";
+            case HEWAN_HILANG -> "Hewan Peliharaan / Liar";
+            case BANTUAN_WARGA -> "Bantuan Sosial Warga";
+            case KEAMANAN -> "Keamanan / Ketertiban";
+            case LAINNYA -> "Lainnya";
+        };
+    }
+
+    private String getStatusLabel(ReportStatus st) {
+        return switch (st) {
+            case PENDING -> "Menunggu (Pending)";
+            case DIPROSES -> "Sedang Diproses";
+            case SELESAI -> "Selesai (Final)";
+            case DITOLAK -> "Ditolak";
+        };
     }
 
     @PostMapping

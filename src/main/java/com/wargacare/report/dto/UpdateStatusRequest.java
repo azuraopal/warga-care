@@ -19,4 +19,7 @@ public class UpdateStatusRequest {
 
     @Size(max = 500, message = "Catatan admin maksimal 500 karakter")
     private String adminNotes;
+
+    @Size(max = 2000, message = "Bukti penyelesaian maksimal 2000 karakter")
+    private String completionEvidence;
 }

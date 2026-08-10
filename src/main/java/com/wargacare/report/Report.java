@@ -50,6 +50,9 @@ public class Report {
     @Column(name = "admin_notes", columnDefinition = "TEXT")
     private String adminNotes;
 
+    @Column(name = "completion_evidence", columnDefinition = "TEXT")
+    private String completionEvidence;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     private User reporter;

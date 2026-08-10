@@ -32,6 +32,7 @@ public class EventService {
                 .description(request.getDescription())
                 .eventDate(request.getEventDate())
                 .location(request.getLocation())
+                .imageUrl(request.getImageUrl())
                 .organizer(organizer)
                 .build();
 
@@ -71,6 +72,9 @@ public class EventService {
         if (request.getLocation() != null) {
             event.setLocation(request.getLocation());
         }
+        if (request.getImageUrl() != null) {
+            event.setImageUrl(request.getImageUrl());
+        }
 
         return mapToResponse(eventRepository.save(event));
     }
@@ -98,6 +102,7 @@ public class EventService {
                 .description(e.getDescription())
                 .eventDate(e.getEventDate())
                 .location(e.getLocation())
+                .imageUrl(e.getImageUrl())
                 .organizer(EventResponse.OrganizerInfo.builder()
                         .id(e.getOrganizer().getId())
                         .fullName(e.getOrganizer().getFullName())

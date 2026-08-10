@@ -12,4 +12,8 @@ public interface ReportRepository extends JpaRepository<Report, Long>, JpaSpecif
     Page<Report> findByReporterEmail(String email, Pageable pageable);
 
     long countByStatus(ReportStatus status);
+
+    long countByReporterId(Long reporterId);
+
+    long countByReporterIdAndStatus(Long reporterId, ReportStatus status);
 }

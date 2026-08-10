@@ -18,6 +18,7 @@ public class EventResponse {
     private String description;
     private LocalDateTime eventDate;
     private String location;
+    private String imageUrl;
     private OrganizerInfo organizer;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

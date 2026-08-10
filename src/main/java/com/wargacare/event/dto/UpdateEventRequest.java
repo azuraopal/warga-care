@@ -26,4 +26,7 @@ public class UpdateEventRequest {
 
     @Size(max = 255, message = "Lokasi maksimal 255 karakter")
     private String location;
+
+    @Size(max = 500, message = "URL Gambar maksimal 500 karakter")
+    private String imageUrl;
 }

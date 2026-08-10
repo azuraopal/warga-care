@@ -38,4 +38,15 @@ public class DashboardService {
                 .totalKegiatan(eventRepository.count())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public DashboardResponse getDashboardStatsForUser(Long userId) {
+        return DashboardResponse.builder()
+                .totalWarga(userRepository.count())
+                .totalLaporan(reportRepository.countByReporterId(userId))
+                .totalLaporanPending(reportRepository.countByReporterIdAndStatus(userId, ReportStatus.PENDING))
+                .totalPengumuman(announcementRepository.count())
+                .totalKegiatan(eventRepository.count())
+                .build();
+    }
 }

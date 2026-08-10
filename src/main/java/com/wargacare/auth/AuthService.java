@@ -40,11 +40,13 @@ public class AuthService {
             throw new IllegalStateException("Email " + request.getEmail() + " sudah terdaftar. Gunakan email lain.");
         }
 
+        UserRole userRole = request.getRole() != null ? request.getRole() : UserRole.WARGA;
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(UserRole.WARGA)
+                .role(userRole)
                 .rt(request.getRt())
                 .rw(request.getRw())
                 .phone(request.getPhone())

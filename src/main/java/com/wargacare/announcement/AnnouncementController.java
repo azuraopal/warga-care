@@ -28,7 +28,7 @@ public class AnnouncementController {
     }
 
     @PostMapping
-    @Operation(summary = "Buat pengumuman baru (ADMIN_RT)")
+    @Operation(summary = "Buat pengumuman baru (ADMIN RT)")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> create(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CreateAnnouncementRequest request) {
@@ -55,7 +55,7 @@ public class AnnouncementController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update pengumuman (ADMIN_RT)")
+    @Operation(summary = "Update pengumuman (ADMIN RT)")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateAnnouncementRequest request) {
@@ -63,8 +63,15 @@ public class AnnouncementController {
         return ResponseEntity.ok(ApiResponse.success("Pengumuman berhasil diperbarui", response));
     }
 
+    @PatchMapping("/{id}/pin")
+    @Operation(summary = "Sematkan / Lepas sematan pengumuman (ADMIN RT)")
+    public ResponseEntity<ApiResponse<AnnouncementResponse>> togglePin(@PathVariable Long id) {
+        AnnouncementResponse response = announcementService.togglePin(id);
+        return ResponseEntity.ok(ApiResponse.success("Status sematan berhasil diubah", response));
+    }
+
     @DeleteMapping("/{id}")
-    @Operation(summary = "Hapus pengumuman (ADMIN_RT)")
+    @Operation(summary = "Hapus pengumuman (ADMIN RT)")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         announcementService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Pengumuman berhasil dihapus"));

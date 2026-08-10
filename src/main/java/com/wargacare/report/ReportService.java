@@ -113,9 +113,16 @@ public class ReportService {
             throw new AccessDeniedException("Hanya ADMIN_RT yang dapat mengubah status laporan");
         }
 
+        if (report.getStatus() == ReportStatus.SELESAI) {
+            throw new IllegalStateException("Laporan yang sudah berstatus SELESAI sudah final dan tidak dapat diubah lagi statusnya");
+        }
+
         report.setStatus(request.getStatus());
         if (request.getAdminNotes() != null) {
             report.setAdminNotes(request.getAdminNotes());
+        }
+        if (request.getCompletionEvidence() != null) {
+            report.setCompletionEvidence(request.getCompletionEvidence());
         }
 
         Report updated = reportRepository.save(report);
@@ -177,6 +184,7 @@ public class ReportService {
                 .rt(report.getRt())
                 .rw(report.getRw())
                 .adminNotes(report.getAdminNotes())
+                .completionEvidence(report.getCompletionEvidence())
                 .reporter(reporterInfo)
                 .createdAt(report.getCreatedAt())
                 .updatedAt(report.getUpdatedAt())
