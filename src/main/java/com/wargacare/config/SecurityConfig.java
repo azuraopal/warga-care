@@ -46,19 +46,33 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/announcements/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reports/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reports/statuses").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard/me").authenticated()
                         .requestMatchers("/api/dashboard/**").hasRole("ADMIN_RT")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.POST, "/api/announcements/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.PUT, "/api/announcements/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/announcements/*/pin").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.DELETE, "/api/announcements/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.POST, "/api/upload").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/chat").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reports/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reports").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.PATCH, "/api/reports/*/status").hasRole("ADMIN_RT")
