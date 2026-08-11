@@ -41,6 +41,15 @@ public class Report {
     @Column(name = "location", length = 255)
     private String location;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "photo_evidence", columnDefinition = "TEXT")
+    private String photoEvidence;
+
     @Column(name = "rt", length = 10)
     private String rt;
 

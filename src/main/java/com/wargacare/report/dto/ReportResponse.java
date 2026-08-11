@@ -21,6 +21,9 @@ public class ReportResponse {
     private ReportCategory category;
     private ReportStatus status;
     private String location;
+    private Double latitude;
+    private Double longitude;
+    private String photoEvidence;
     private String rt;
     private String rw;
     private String adminNotes;

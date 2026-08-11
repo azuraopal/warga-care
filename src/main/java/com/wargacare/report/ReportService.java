@@ -33,6 +33,9 @@ public class ReportService {
                 .description(request.getDescription())
                 .category(request.getCategory())
                 .location(request.getLocation())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .photoEvidence(request.getPhotoEvidence())
                 .rt(reporter.getRt())
                 .rw(reporter.getRw())
                 .reporter(reporter)
@@ -98,6 +101,12 @@ public class ReportService {
         }
         if (request.getLocation() != null) {
             report.setLocation(request.getLocation());
+        }
+        if (request.getLatitude() != null) {
+            report.setLatitude(request.getLatitude());
+        }
+        if (request.getLongitude() != null) {
+            report.setLongitude(request.getLongitude());
         }
 
         Report updated = reportRepository.save(report);
@@ -181,6 +190,9 @@ public class ReportService {
                 .category(report.getCategory())
                 .status(report.getStatus())
                 .location(report.getLocation())
+                .latitude(report.getLatitude())
+                .longitude(report.getLongitude())
+                .photoEvidence(report.getPhotoEvidence())
                 .rt(report.getRt())
                 .rw(report.getRw())
                 .adminNotes(report.getAdminNotes())
