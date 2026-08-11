@@ -40,7 +40,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 1. Seed Admin RT User
         User admin = userRepository.findByEmail("admin@wargacare.id").orElseGet(() -> {
             User newAdmin = User.builder()
                     .fullName("Pak RT Syamsuddin")
@@ -56,7 +55,6 @@ public class DataInitializer implements CommandLineRunner {
             return userRepository.save(newAdmin);
         });
 
-        // 2. Seed Warga User
         User warga = userRepository.findByEmail("warga@wargacare.id").orElseGet(() -> {
             User newWarga = User.builder()
                     .fullName("Ahmad Subagyo")
@@ -72,7 +70,6 @@ public class DataInitializer implements CommandLineRunner {
             return userRepository.save(newWarga);
         });
 
-        // 3. Seed Initial Announcements if empty
         if (announcementRepository.count() == 0) {
             announcementRepository.save(Announcement.builder()
                     .title("Kerja Bakti Massal Kebersihan Lingkungan RT 01")
@@ -89,7 +86,6 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
         }
 
-        // 4. Seed Initial Events if empty
         if (eventRepository.count() == 0) {
             eventRepository.save(Event.builder()
                     .title("Kerja Bakti & Pembersihan Drainase")
@@ -110,7 +106,6 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
         }
 
-        // 5. Seed Initial Reports if empty
         if (reportRepository.count() == 0) {
             reportRepository.save(Report.builder()
                     .title("Lampu Jalan Padam di Depan Rumah No. 12")
