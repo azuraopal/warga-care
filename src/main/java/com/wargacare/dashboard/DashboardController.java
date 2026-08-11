@@ -34,8 +34,8 @@ public class DashboardController {
     @Operation(summary = "Statistik Dashboard (Warga)",
                description = "Mendapatkan statistik dashboard untuk warga yang sedang login")
     public ResponseEntity<ApiResponse<DashboardResponse>> getMyStats(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal com.wargacare.user.User user) {
-        DashboardResponse response = dashboardService.getDashboardStatsForUser(user.getId());
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        DashboardResponse response = dashboardService.getDashboardStatsForUserEmail(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("Statistik berhasil diambil", response));
     }
 }

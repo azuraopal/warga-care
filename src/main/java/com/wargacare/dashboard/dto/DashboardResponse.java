@@ -13,6 +13,7 @@ public class DashboardResponse {
     private long totalWarga;
     private long totalLaporan;
     private long totalLaporanPending;
+    private long totalLaporanSelesai;
     private long totalPengumuman;
     private long totalKegiatan;
 }
