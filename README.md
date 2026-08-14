@@ -1,303 +1,191 @@
-# WargaCare — Sistem Pengaduan & Bantuan Warga RT/RW
+# 🏡 WargaCare — Sistem Pengaduan & Bantuan Warga RT/RW
 
-> Backend REST API untuk sistem pengaduan dan bantuan warga RT/RW, dibangun menggunakan Java 21, Spring Boot, PostgreSQL, dan Docker.
-
-[![Java](https://img.shields.io/badge/Java-21-orange?logo=java)](https://adoptium.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green?logo=springboot)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-Local%20Dev-blue?logo=docker)](https://docs.docker.com/)
+> **WargaCare** adalah sistem REST API backend modern untuk pengelolaan pengaduan, pengumuman, kegiatan warga, serta integrasi AI Virtual Assistant di tingkat RT/RW/Desa. 
+> 
+> Dibangun menggunakan **Java 21**, **Spring Boot 3.3**, **PostgreSQL**, **Flyway**, dan **Google Gemini AI**.
 
 ---
 
-## 📦 Tech Stack
+## 🚀 Fitur Utama
 
-| Teknologi | Keterangan |
-|---|---|
-| Java 21 | Bahasa pemrograman utama |
-| Spring Boot 3.3 | Framework backend |
-| Spring Security + JWT | Autentikasi dan otorisasi |
-| Spring Data JPA + Hibernate | ORM untuk akses database |
-| PostgreSQL 16 | Database relasional |
-| Flyway | Database migration |
-| Swagger / OpenAPI 3 | Dokumentasi REST API |
-| Docker | Local development environment |
-| Docker | Containerization |
-| Kubernetes | Orchestration (portfolio) |
-| GitHub Actions | CI/CD pipeline |
+- 🔐 **Authentication & Authorization**: Registration, Login JWT Token, RBAC (`WARGA`, `ADMIN_RT`, `RELAWAN`).
+- 📝 **Manajemen Laporan Pengaduan**: Buat, lihat, update status pengaduan warga, lokasi (latitude/longitude), dan lampiran foto bukti.
+- 📢 **Pengumuman & Kegiatan (Event)**: Informasi resmi RT/RW dan agenda kegiatan warga.
+- 🤖 **AI Assistant (Google Gemini)**: Chatbot interaktif seputar administrasi RT/RW/Desa dan Karang Taruna.
+- 📁 **File Upload**: Layanan unggah foto laporan, kegiatan, dan bukti penyelesaian.
+- 📄 **Dokumentasi API Interactive**: Swagger UI & OpenAPI 3.
 
 ---
 
-## 🚀 Cara Menjalankan dengan PostgreSQL Lokal
+## 🛠️ Tech Stack
 
-### Prasyarat
-- PostgreSQL terinstall dan berjalan
-- Database `wargacare` sudah dibuat
-- Java 21 JDK (untuk development dari host)
-- Maven (opsional, bisa menggunakan `./run.sh`)
+| Teknologi | Versi | Keterangan |
+|---|---|---|
+| **Java** | 21 | Bahasa Pemrograman Utama |
+| **Spring Boot** | 3.3.0 | Framework Utama |
+| **Spring Security** | 6.x | Keamanan & JWT Authentication |
+| **Spring Data JPA** | 3.3.0 | Persistence & ORM |
+| **PostgreSQL** | 16+ | Database Utama |
+| **Flyway** | 10.x | Database Migration (V1 - V7) |
+| **Google Gemini API** | v1beta | AI Virtual Assistant (`gemini-3.5-flash`) |
+| **Swagger / OpenAPI** | 2.5.0 | Dokumentasi REST API |
+| **Maven** | 3.9+ | Build Tool & Dependency Manager |
 
-### 1. Set koneksi database
+---
+
+## ⚡ Panduan Cepat Menjalankan Project
+
+### 📋 Prasyarat Sistem
+- **Java 21** (JDK 21)
+- **PostgreSQL** (Database `mac` atau buat database baru `wargacare`)
+- **Maven** (atau gunakan `./run.sh` yang sudah menyertakan wrapper)
+
+---
+
+### 1️⃣ Clone & Masuk ke Folder Project
 
 ```bash
-# Sesuaikan kredensial dengan PostgreSQL lokal kamu
-export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/wargacare
-export SPRING_DATASOURCE_USERNAME=postgres
-export SPRING_DATASOURCE_PASSWORD=postgres
-export JWT_SECRET=wargacare-local-secret-key-256bit-long
+git clone https://github.com/username/warga-care.git
+cd warga-care
 ```
 
-### 2. Jalankan aplikasi
+---
+
+### 2️⃣ Konfigurasi Environment (`.env`)
+
+Buat file `.env` di root project atau gunakan file `.env` yang sudah disediakan:
+
+```ini
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/mac
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=postgres
+JWT_SECRET=wargacare-local-development-secret-key-256bit-long
+JWT_EXPIRATION=86400000
+GEMINI_API_KEY=your-gemini-api-key-here
+```
+
+> **Note**: Konfigurasi di atas akan otomatis dimuat oleh Spring Boot melalui file `.env`.
+
+---
+
+### 3️⃣ Jalankan Database (PostgreSQL)
+
+Pastikan PostgreSQL sudah berjalan dan database target sudah dibuat:
+
+```sql
+CREATE DATABASE mac;
+```
+
+---
+
+### 4️⃣ Menjalankan Aplikasi
+
+#### Cara 1: Menggunakan Script `run.sh` (Linux/macOS)
 
 ```bash
+chmod +x run.sh
 ./run.sh
 ```
 
-Kalau kamu mau menjalankan langsung tanpa script:
+#### Cara 2: Menggunakan Maven Langsung
 
 ```bash
-mvn spring-boot:run
+mvn clean spring-boot:run
 ```
 
-> **💡 Tip IntelliJ IDEA / VS Code**: Set environment variable di Run Configuration agar tidak perlu export setiap kali.
-
-### 4. Akses Aplikasi
-
-| URL | Keterangan |
-|---|---|
-| `http://localhost:8080` | Spring Boot API |
-| `http://localhost:8080/swagger-ui.html` | Swagger UI |
-| `http://localhost:8080/v3/api-docs` | OpenAPI JSON |
-
----
-
-## 🗄️ Akses Database
-
-### MySQL CLI via DDEV
+#### Cara 3: Menggunakan Docker Compose
 
 ```bash
-# Buka MySQL CLI (MariaDB) di dalam DDEV
-ddev mysql
-
-# Atau jalankan query langsung
-ddev mysql -e "SHOW TABLES;"
-ddev mysql -e "SELECT * FROM users;"
-```
-
-### Koneksi dari Database Client (TablePlus, DBeaver, dsb.)
-
-```bash
-# Cek informasi koneksi
-ddev describe
-
-# Gunakan:
-# Host: localhost
-# Port: (lihat output ddev describe, kolom db)
-# Database: db
-# Username: db
-# Password: db
-```
-
----
-
-## 📡 REST API Endpoints
-
-### Authentication
-
-| Method | Endpoint | Auth | Keterangan |
-|---|---|---|---|
-| POST | `/api/auth/register` | Public | Registrasi pengguna baru |
-| POST | `/api/auth/login` | Public | Login dan dapatkan JWT |
-| GET | `/api/auth/me` | 🔒 JWT | Data pengguna saat ini |
-
-### Reports (Tahap 2)
-
-| Method | Endpoint | Auth | Keterangan |
-|---|---|---|---|
-| POST | `/api/reports` | 🔒 WARGA | Buat laporan baru |
-| GET | `/api/reports` | 🔒 JWT | Daftar laporan |
-| GET | `/api/reports/{id}` | 🔒 JWT | Detail laporan |
-| PATCH | `/api/reports/{id}/status` | 🔒 ADMIN_RT | Update status |
-| PATCH | `/api/reports/{id}/assign` | 🔒 ADMIN_RT | Assign ke relawan |
-| POST | `/api/reports/{id}/comments` | 🔒 JWT | Tambah komentar |
-| GET | `/api/reports/{id}/comments` | 🔒 JWT | Lihat komentar |
-
-### Announcements (Tahap 3)
-
-| Method | Endpoint | Auth | Keterangan |
-|---|---|---|---|
-| POST | `/api/announcements` | 🔒 ADMIN_RT | Buat pengumuman |
-| GET | `/api/announcements` | 🔒 JWT | Daftar pengumuman |
-| GET | `/api/announcements/{id}` | 🔒 JWT | Detail pengumuman |
-| DELETE | `/api/announcements/{id}` | 🔒 ADMIN_RT | Hapus pengumuman |
-
-### Events (Tahap 3)
-
-| Method | Endpoint | Auth | Keterangan |
-|---|---|---|---|
-| POST | `/api/events` | 🔒 ADMIN_RT | Buat jadwal kegiatan |
-| GET | `/api/events` | 🔒 JWT | Daftar kegiatan |
-| GET | `/api/events/{id}` | 🔒 JWT | Detail kegiatan |
-| DELETE | `/api/events/{id}` | 🔒 ADMIN_RT | Hapus kegiatan |
-
-### Dashboard (Tahap 3)
-
-| Method | Endpoint | Auth | Keterangan |
-|---|---|---|---|
-| GET | `/api/dashboard/summary` | 🔒 ADMIN_RT | Statistik laporan |
-
----
-
-## 👤 Role Pengguna
-
-| Role | Keterangan |
-|---|---|
-| `WARGA` | Pengguna biasa. Bisa membuat dan melihat laporan miliknya |
-| `ADMIN_RT` | Admin RT/RW. Full akses ke semua fitur |
-| `RELAWAN` | Relawan. Bisa update progress laporan yang ditugaskan |
-
-> **Catatan**: Semua pengguna yang register mendapat role `WARGA` secara default. Role lain harus diset manual di database oleh admin.
-
----
-
-## 🔑 Contoh Penggunaan API
-
-### 1. Register
-
-```bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "Budi Santoso",
-    "email": "budi@example.com",
-    "password": "password123",
-    "rt": "001",
-    "rw": "005",
-    "phone": "08123456789",
-    "address": "Jl. Merdeka No. 1"
-  }'
-```
-
-### 2. Login
-
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "budi@example.com",
-    "password": "password123"
-  }'
-```
-
-### 3. Akses Protected Endpoint
-
-```bash
-curl -X GET http://localhost:8080/api/auth/me \
-  -H "Authorization: Bearer {JWT_TOKEN_DARI_LOGIN}"
-```
-
----
-
-## 🧪 Testing
-
-```bash
-# Jalankan semua test (membutuhkan Docker untuk Testcontainers)
-mvn test
-
-# Jalankan hanya unit test
-mvn test -Dtest=AuthServiceTest
-
-# Jalankan hanya integration test
-mvn test -Dtest=AuthIntegrationTest
-```
-
-> **Testcontainers** akan otomatis menarik image `postgres:16-alpine` dari Docker Hub saat test dijalankan.
-
----
-
-## 🐳 Alternatif: Docker Compose (tanpa DDEV)
-
-```bash
-# Jalankan Spring Boot + PostgreSQL dengan docker-compose
 docker-compose up -d
-
-# Cek log
-docker-compose logs -f app
-
-# Stop
-docker-compose down
 ```
 
 ---
 
-## ☸️ Kubernetes (Portfolio)
+### 5️⃣ Akses Dokumentasi & API
+
+Setelah aplikasi berjalan, buka browser dan akses:
+
+| Akses | URL |
+|---|---|
+| 📖 **Swagger UI** | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) |
+| 📄 **OpenAPI Specs** | [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs) |
+| ⚡ **API Base URL** | `http://localhost:8080/api` |
+
+---
+
+## 📡 REST API Overview
+
+### 🔑 Authentication (`/api/auth`)
+- `POST /api/auth/register` — Registrasi akun warga baru
+- `POST /api/auth/login` — Login & dapatkan token JWT
+- `GET /api/auth/me` — Ambil profil user yang sedang login
+
+### 📋 Reports / Laporan (`/api/reports`)
+- `POST /api/reports` — Buat laporan pengaduan (WARGA)
+- `GET /api/reports` — Lihat semua laporan (dengan filter kategori/status/RT/RW)
+- `GET /api/reports/{id}` — Detail laporan
+- `PATCH /api/reports/{id}/status` — Update status laporan (ADMIN_RT)
+- `PATCH /api/reports/{id}/assign` — Assign laporan ke relawan (ADMIN_RT)
+- `POST /api/reports/{id}/comments` — Tambah komentar pada laporan
+
+### 🤖 AI Virtual Assistant (`/api/ai`)
+- `POST /api/ai/chat` — Tanya jawab dengan AI Virtual Assistant RT/RW
+
+### 📢 Pengumuman & Kegiatan (`/api/announcements`, `/api/events`)
+- `GET /api/announcements` — Daftar pengumuman RT/RW
+- `POST /api/announcements` — Buat pengumuman baru (ADMIN_RT)
+- `GET /api/events` — Agenda kegiatan warga
+- `POST /api/events` — Buat kegiatan baru (ADMIN_RT)
+
+### 📁 Upload File (`/api/upload`)
+- `POST /api/upload/reports` — Unggah foto bukti laporan
+- `POST /api/upload/events` — Unggah foto kegiatan
+
+---
+
+## 🧪 Menjalankan Test
 
 ```bash
-# Apply semua manifest
-kubectl apply -f k8s/
-
-# Cek status
-kubectl get pods -n wargacare
-kubectl get services -n wargacare
+# Jalankan unit test dan integration test
+mvn test
 ```
 
 ---
 
-## 📁 Struktur Project
+## 📂 Struktur Folder Project
 
-```
+```text
 warga-care/
-├── src/main/java/com/wargacare/
-│   ├── WargaCareApplication.java
-│   ├── config/
-│   │   ├── OpenApiConfig.java       # Swagger config
-│   │   └── SecurityConfig.java      # Spring Security config
-│   ├── security/
-│   │   ├── JwtUtil.java             # JWT generate & validate
-│   │   ├── JwtAuthenticationFilter.java
-│   │   └── UserDetailsServiceImpl.java
-│   ├── auth/
-│   │   ├── AuthController.java      # REST endpoints
-│   │   ├── AuthService.java         # Business logic
-│   │   └── dto/
-│   │       ├── RegisterRequest.java
-│   │       ├── LoginRequest.java
-│   │       └── AuthResponse.java
-│   ├── user/
-│   │   ├── User.java                # JPA Entity
-│   │   ├── UserRepository.java
-│   │   ├── UserRole.java            # Enum
-│   │   └── dto/
-│   │       └── UserResponse.java
-│   └── common/
-│       ├── ApiResponse.java         # Generic response wrapper
-│       └── GlobalExceptionHandler.java
-├── src/main/resources/
-│   ├── application.yml
-│   └── db/migration/
-│       └── V1__init_users_table.sql
-├── src/test/java/com/wargacare/auth/
-│   ├── AuthIntegrationTest.java     # Testcontainers
-│   └── AuthServiceTest.java         # Mockito
-├── .ddev/
-│   └── config.yaml                  # DDEV config (MariaDB 10.11)
-├── Dockerfile                       # Multi-stage build
-├── docker-compose.yml               # Alternatif tanpa DDEV
-├── k8s/                             # Kubernetes manifests
-├── .github/workflows/ci.yml         # GitHub Actions
-├── README.md
-└── pom.xml
+├── k8s/                     # Manifest Deployment Kubernetes
+├── src/
+│   ├── main/
+│   │   ├── java/com/wargacare/
+│   │   │   ├── ai/          # Controller & Service Gemini AI
+│   │   │   ├── announcement/# Modul Pengumuman
+│   │   │   ├── auth/        # Auth & JWT Service
+│   │   │   ├── category/    # Category Management
+│   │   │   ├── common/      # Exception Handler & Response DTO
+│   │   │   ├── dashboard/   # Dashboard Statistics
+│   │   │   ├── event/       # Modul Kegiatan Warga
+│   │   │   ├── report/      # Modul Pengaduan Warga
+│   │   │   ├── security/    # Filter & Security Config
+│   │   │   ├── upload/      # Controller File Storage
+│   │   │   └── user/        # Management User & Roles
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       └── db/migration/# Migration Script Flyway (V1-V7)
+│   └── test/                # Unit & Integration Tests
+├── Dockerfile
+├── mise.toml
+├── pom.xml
+└── run.sh
 ```
 
 ---
 
-## 🔧 Environment Variables
+## 📝 Lisensi & Kontribusi
 
-| Variable | Default (local) | Keterangan |
-|---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/wargacare` | Database URL |
-| `SPRING_DATASOURCE_USERNAME` | `postgres` | Database username |
-| `SPRING_DATASOURCE_PASSWORD` | `postgres` | Database password |
-| `JWT_SECRET` | *(wajib diset di production)* | JWT signing secret |
-| `JWT_EXPIRATION` | `86400000` | Token expiry dalam ms (24 jam) |
+Dipublikasikan untuk keperluan tata kelola lingkungan warga RT/RW/Desa. Kontribusi dan Pull Request sangat dialu-alukan! 🚀
 
 > **⚠️ Production**: Ganti semua default value dengan nilai yang aman dan simpan di Kubernetes Secret atau environment variable terenkripsi.
 
