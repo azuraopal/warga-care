@@ -19,7 +19,7 @@ import java.util.Map;
 public class ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatService.class);
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=";
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=";
 
     @Value("${gemini.api.key}")
     private String geminiApiKey;
@@ -38,9 +38,11 @@ public class ChatService {
 
         Map<String, Object> requestBody = new HashMap<>();
         Map<String, Object> systemInstruction = new HashMap<>();
+        List<Map<String, String>> sysParts = new ArrayList<>();
         Map<String, String> sysPart = new HashMap<>();
         sysPart.put("text", "Anda adalah asisten virtual resmi untuk aplikasi WargaCare (fokus di Indonesia). Tugas Anda HANYA menjawab pertanyaan seputar Karang Taruna, definisi RT, RW, serta ruang lingkup tata kelola administratif di tingkat Desa. Jika pengguna bertanya di luar topik tersebut (misalnya cuaca, teknologi, resep masakan, dll), tolak secara sopan, ringkas, ramah, dan arahkan mereka kembali ke topik seputar lingkungan RT/RW/Desa/Karang Taruna.");
-        systemInstruction.put("parts", sysPart);
+        sysParts.add(sysPart);
+        systemInstruction.put("parts", sysParts);
         requestBody.put("system_instruction", systemInstruction);
 
         List<Map<String, Object>> contents = new ArrayList<>();
@@ -136,6 +138,9 @@ public class ChatService {
             }
             
             return (String) textObj;
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            log.error("Gemini API returned status {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            return "Maaf, terjadi kesalahan pada layanan AI (" + e.getStatusCode().value() + "). Silakan periksa kembali API Key Gemini.";
         } catch (Exception e) {
             log.error("Error calling Gemini API: {}", e.getMessage(), e);
             return "Maaf, terjadi kesalahan saat menghubungi layanan AI kami.";

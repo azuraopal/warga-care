@@ -34,9 +34,10 @@ echo "[INFO] Swagger UI: http://localhost:8080/swagger-ui.html"
 echo "================================================"
 echo ""
 
-SPRING_DATASOURCE_URL="${SPRING_DATASOURCE_URL:-jdbc:postgresql://127.0.0.1:5432/mac}" \
+SPRING_DATASOURCE_URL="${SPRING_DATASOURCE_URL:-jdbc:postgresql://127.0.0.1:5432/wargacare}" \
 SPRING_DATASOURCE_USERNAME="${SPRING_DATASOURCE_USERNAME:-postgres}" \
 SPRING_DATASOURCE_PASSWORD="${SPRING_DATASOURCE_PASSWORD:-postgres}" \
 JWT_SECRET="wargacare-local-development-secret-key-256bit-long" \
 JWT_EXPIRATION="86400000" \
-mvn clean spring-boot:run
+MAVEN_OPTS="${MAVEN_OPTS:--Xms128m -Xmx512m}" \
+mvn -DskipTests -Dspring-boot.run.fork=false -Dspring-boot.run.jvmArguments="-Xms128m -Xmx512m" spring-boot:run

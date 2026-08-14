@@ -72,7 +72,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.POST, "/api/upload").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/chat").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reports/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reports").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.PATCH, "/api/reports/*/status").hasRole("ADMIN_RT")
