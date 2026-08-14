@@ -22,14 +22,13 @@ public class OpenApiConfig {
                         .title("WargaCare API")
                         .description("""
                                 **WargaCare — Sistem Pengaduan & Bantuan Warga RT/RW**
-                                
                                 REST API untuk mengelola laporan warga, pengumuman RT/RW, jadwal kegiatan, dan monitoring lingkungan.
                                 
                                 ### Role Pengguna
                                 - **WARGA**: Bisa membuat dan melihat laporan miliknya sendiri
                                 - **ADMIN_RT**: Bisa mengelola semua laporan, membuat pengumuman dan jadwal kegiatan
-                                - **RELAWAN**: Bisa melihat laporan yang ditugaskan dan update progress
-                                
+                                - **RELAWAN**: Bisa melihat laporan yang ditugaskan dan update progres
+
                                 ### Cara Penggunaan
                                 1. Register akun baru via `POST /api/auth/register`
                                 2. Login via `POST /api/auth/login` untuk mendapatkan JWT token

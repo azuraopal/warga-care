@@ -3,6 +3,7 @@ package com.wargacare.auth;
 import com.wargacare.auth.dto.AuthResponse;
 import com.wargacare.auth.dto.LoginRequest;
 import com.wargacare.auth.dto.RegisterRequest;
+import com.wargacare.common.ResourceNotFoundException;
 import com.wargacare.security.JwtUtil;
 import com.wargacare.user.User;
 import com.wargacare.user.UserRepository;
@@ -78,7 +79,7 @@ public class AuthService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
 
         String token = jwtUtil.generateToken(userDetails);
 
@@ -93,7 +94,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Pengguna tidak ditemukan"));
+                .orElseThrow(() -> new ResourceNotFoundException("Pengguna tidak ditemukan"));
         return mapToUserResponse(user);
     }
 

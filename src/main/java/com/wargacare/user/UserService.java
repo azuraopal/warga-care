@@ -2,11 +2,13 @@ package com.wargacare.user;
 
 import com.wargacare.common.PagedResponse;
 import com.wargacare.common.ResourceNotFoundException;
+import com.wargacare.user.dto.CreateUserRequest;
 import com.wargacare.user.dto.UpdateRoleRequest;
 import com.wargacare.user.dto.UpdateUserStatusRequest;
 import com.wargacare.user.dto.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +16,33 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public UserResponse createUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalStateException("Email " + request.getEmail() + " sudah terdaftar. Gunakan email lain.");
+        }
+
+        User user = User.builder()
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .rt(request.getRt())
+                .rw(request.getRw())
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .isActive(true)
+                .build();
+
+        User savedUser = userRepository.save(user);
+        return mapToUserResponse(savedUser);
     }
 
     @Transactional(readOnly = true)

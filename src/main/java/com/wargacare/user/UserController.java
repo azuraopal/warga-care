@@ -2,6 +2,7 @@ package com.wargacare.user;
 
 import com.wargacare.common.ApiResponse;
 import com.wargacare.common.PagedResponse;
+import com.wargacare.user.dto.CreateUserRequest;
 import com.wargacare.user.dto.UpdateRoleRequest;
 import com.wargacare.user.dto.UpdateUserStatusRequest;
 import com.wargacare.user.dto.UserResponse;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,14 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @PostMapping
+    @Operation(summary = "Tambah warga baru (ADMIN_RT)")
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserResponse response = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Warga baru berhasil ditambahkan", response));
     }
 
     @GetMapping
