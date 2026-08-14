@@ -37,7 +37,7 @@
 
 ### 📋 Prasyarat Sistem
 - **Java 21** (JDK 21)
-- **PostgreSQL** (Database `mac` atau buat database baru `wargacare`)
+- **PostgreSQL** (Database `warga-care` atau buat database baru `wargacare`)
 - **Maven** (atau gunakan `./run.sh` yang sudah menyertakan wrapper)
 
 ---
@@ -56,7 +56,7 @@ cd warga-care
 Buat file `.env` di root project atau gunakan file `.env` yang sudah disediakan:
 
 ```ini
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/mac
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/wargacare
 SPRING_DATASOURCE_USERNAME=postgres
 SPRING_DATASOURCE_PASSWORD=postgres
 JWT_SECRET=wargacare-local-development-secret-key-256bit-long
@@ -73,7 +73,8 @@ GEMINI_API_KEY=your-gemini-api-key-here
 Pastikan PostgreSQL sudah berjalan dan database target sudah dibuat:
 
 ```sql
-CREATE DATABASE mac;
+-- Untuk PostgreSQL 18+ / ICU provider:
+CREATE DATABASE wargacare TEMPLATE template0;
 ```
 
 ---
