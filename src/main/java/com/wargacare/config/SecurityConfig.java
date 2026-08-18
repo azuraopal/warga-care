@@ -76,6 +76,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/reports/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reports").hasRole("ADMIN_RT")
                         .requestMatchers(HttpMethod.PATCH, "/api/reports/*/status").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.GET, "/api/kas/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/kas/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.PUT, "/api/kas/**").hasRole("ADMIN_RT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/kas/**").hasRole("ADMIN_RT")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
