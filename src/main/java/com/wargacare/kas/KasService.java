@@ -164,8 +164,6 @@ public class KasService {
         kasTransactionRepository.delete(tx);
     }
 
-    // --- MASTER WARGA LOGIC ---
-
     @Transactional
     public WargaMasterResponse registerWarga(RegisterWargaRequest request) {
         User currentUser = getCurrentUser();
@@ -202,7 +200,6 @@ public class KasService {
         return list.stream().map(WargaMasterResponse::fromEntity).collect(Collectors.toList());
     }
 
-    // --- WEEKLY IURAN & ARREARS LOGIC ---
 
     public List<WeeklyIuranStatusResponse> getIuranWeekly(String periodWeek) {
         User currentUser = getCurrentUser();
@@ -232,7 +229,6 @@ public class KasService {
 
             boolean isPaid = paidRecord != null && Boolean.TRUE.equals(paidRecord.getIsPaid());
 
-            // Calculate total arrears (weeks unpaid for this resident)
             List<IuranWarga> allPaidForResident = iuranWargaRepository.findByRtAndWargaMasterId(targetRt, wm.getId());
             long paidCount = allPaidForResident.stream().filter(i -> Boolean.TRUE.equals(i.getIsPaid())).count();
             int totalArrearsWeeks = (int) Math.max(0, 1 - (isPaid ? 1 : 0)); // Simplified for active week
@@ -269,18 +265,21 @@ public class KasService {
         String targetRt = getTargetRt(currentUser);
         String targetWeek = (request.getPeriodWeek() != null && !request.getPeriodWeek().isBlank()) ? request.getPeriodWeek() : "2026-W33";
 
-        // 1. Ensure WargaMaster exists
         WargaMaster master;
         if (request.getWargaMasterId() != null) {
             master = wargaMasterRepository.findById(request.getWargaMasterId())
                     .orElseThrow(() -> new ResourceNotFoundException("Data Warga Master tidak ditemukan"));
         } else {
-            Optional<WargaMaster> existing = wargaMasterRepository.findByRtAndWargaName(targetRt, request.getWargaName());
+            String nameToUse = request.getWargaName();
+            if (nameToUse == null || nameToUse.isBlank()) {
+                throw new IllegalArgumentException("Nama warga atau Warga Master ID wajib diisi");
+            }
+            Optional<WargaMaster> existing = wargaMasterRepository.findByRtAndWargaName(targetRt, nameToUse);
             if (existing.isPresent()) {
                 master = existing.get();
             } else {
                 master = WargaMaster.builder()
-                        .wargaName(request.getWargaName())
+                        .wargaName(nameToUse)
                         .blockAddress(request.getBlockAddress())
                         .rt(targetRt)
                         .category(WargaCategory.PEKERJA)
@@ -289,10 +288,8 @@ public class KasService {
             }
         }
 
-        // 2. Determine dues amount based on WargaCategory (Pelajar=Rp 2000, Pekerja=Rp 5000)
         BigDecimal duesAmount = request.getAmount() != null ? request.getAmount() : master.getCategory().getWeeklyDuesRate();
 
-        // 3. Save or update weekly iuran record
         Optional<IuranWarga> existingIuran = iuranWargaRepository.findByRtAndWargaMasterIdAndPeriodWeek(targetRt, master.getId(), targetWeek);
         IuranWarga iuran;
         if (existingIuran.isPresent()) {
@@ -319,7 +316,6 @@ public class KasService {
         }
         iuranWargaRepository.save(iuran);
 
-        // 4. Auto record income kas transaction
         KasTransaction incomeTx = KasTransaction.builder()
                 .rt(targetRt)
                 .type(KasType.INCOME)

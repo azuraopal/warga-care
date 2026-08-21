@@ -24,7 +24,7 @@ public class CreateUserRequest {
     private String email;
 
     @NotBlank(message = "Password tidak boleh kosong")
-    @Size(min = 6, message = "Password minimal 6 karakter")
+    @Size(min = 8, max = 100, message = "Password minimal 8 karakter")
     private String password;
 
     @NotNull(message = "Role tidak boleh kosong")

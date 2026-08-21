@@ -151,6 +151,23 @@ public class ReportController {
         return ResponseEntity.ok(ApiResponse.success("Status laporan berhasil diperbarui", response));
     }
 
+
+    @GetMapping(value = "/stream", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "Stream notifikasi realtime pengaduan (SSE)",
+               description = "Koneksi Server-Sent Events (SSE) untuk notifikasi pengaduan warga secara realtime")
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter streamReports() {
+        org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter = 
+                new org.springframework.web.servlet.mvc.method.annotation.SseEmitter(30 * 60 * 1000L);
+        try {
+            emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event()
+                    .name("INIT")
+                    .data("Koneksi SSE WargaCare berhasil terhubung"));
+        } catch (Exception e) {
+            emitter.completeWithError(e);
+        }
+        return emitter;
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Hapus laporan",
                description = "Warga menghapus laporan miliknya. Hanya bisa saat status masih PENDING.")

@@ -1,6 +1,6 @@
 package com.wargacare.event.dto;
 
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,7 +26,7 @@ public class CreateEventRequest {
     private String description;
 
     @NotNull(message = "Tanggal kegiatan wajib diisi")
-    @Future(message = "Tanggal kegiatan harus di masa depan")
+    @FutureOrPresent(message = "Tanggal kegiatan harus di masa depan atau hari ini")
     private LocalDateTime eventDate;
 
     @Size(max = 255, message = "Lokasi maksimal 255 karakter")

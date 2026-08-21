@@ -11,10 +11,9 @@ import java.math.BigDecimal;
 @Builder
 public class PayWeeklyIuranRequest {
     private Long wargaMasterId;
-    @NotBlank(message = "Nama warga wajib diisi")
     private String wargaName;
     private String blockAddress;
-    private String periodWeek; // e.g. "2026-W33"
-    private BigDecimal amount; // null to auto-fill based on WargaCategory
+    private String periodWeek;
+    private BigDecimal amount;
     private String paymentMethod;
 }

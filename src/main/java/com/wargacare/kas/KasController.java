@@ -54,8 +54,6 @@ public class KasController {
         return ResponseEntity.ok(ApiResponse.success("Berhasil menghapus transaksi kas", null));
     }
 
-    // --- MASTER WARGA ENDPOINTS ---
-
     @PostMapping("/warga")
     public ResponseEntity<ApiResponse<WargaMasterResponse>> registerWarga(
             @Valid @RequestBody RegisterWargaRequest request) {
@@ -68,8 +66,6 @@ public class KasController {
         List<WargaMasterResponse> list = kasService.getMasterWarga();
         return ResponseEntity.ok(ApiResponse.success("Berhasil mengambil data warga master", list));
     }
-
-    // --- WEEKLY IURAN ENDPOINTS ---
 
     @GetMapping("/iuran/weekly")
     public ResponseEntity<ApiResponse<List<WeeklyIuranStatusResponse>>> getIuranWeekly(
@@ -84,8 +80,6 @@ public class KasController {
         WeeklyIuranStatusResponse res = kasService.payIuranWeekly(request);
         return ResponseEntity.ok(ApiResponse.success("Berhasil mencatat pembayaran iuran mingguan", res));
     }
-
-    // --- LEGACY MONTHLY IURAN ENDPOINTS ---
 
     @GetMapping("/iuran")
     public ResponseEntity<ApiResponse<List<IuranWargaResponse>>> getIuranWarga(

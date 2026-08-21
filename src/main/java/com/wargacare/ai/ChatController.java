@@ -1,5 +1,7 @@
 package com.wargacare.ai;
 
+import com.wargacare.common.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +19,10 @@ public class ChatController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> chat(@RequestBody ChatRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> chat(@Valid @RequestBody ChatRequest request) {
         String responseText = chatService.getChatResponse(request.getMessage());
         Map<String, String> response = new HashMap<>();
         response.put("reply", responseText);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Berhasil memproses percakapan", response));
     }
 }
