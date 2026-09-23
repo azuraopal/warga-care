@@ -29,8 +29,8 @@ spring:
     baseline-on-migrate: true
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:wargacare-local-development-secret-key-256bit-long}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 server:
   port: 8080
@@ -53,4 +53,13 @@ springdoc:
 
 gemini:
   api:
-    key: ${GEMINI_API_KEY}
+    key: ${GEMINI_API_KEY:}
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
