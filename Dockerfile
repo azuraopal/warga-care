@@ -10,21 +10,19 @@ RUN mvn clean package -DskipTests -B
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-RUN addgroup -S wargacare && adduser -S wargacare -G wargacare
+RUN apk add --no-cache su-exec && \
+    addgroup -S wargacare && adduser -S wargacare -G wargacare
 
 COPY --from=builder /app/target/*.jar app.jar
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
-RUN chown -R wargacare:wargacare /app
-USER wargacare
+RUN chmod +x /app/docker-entrypoint.sh && \
+    mkdir -p /app/uploads/events /app/uploads/reports /app/uploads/general && \
+    chown -R wargacare:wargacare /app
 
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "-jar", "app.jar"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

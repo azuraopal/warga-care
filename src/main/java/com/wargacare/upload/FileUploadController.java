@@ -1,5 +1,7 @@
 package com.wargacare.upload;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.wargacare.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +25,8 @@ import java.util.UUID;
 @Tag(name = "Upload", description = "Endpoint upload file gambar dari device user ke server backend")
 public class FileUploadController {
 
+
+    private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
     private final Path rootUploadDir = Paths.get("uploads");
 
     @Value("${app.public-url:}")
@@ -40,7 +44,7 @@ public class FileUploadController {
             Files.createDirectories(rootUploadDir.resolve("reports"));
             Files.createDirectories(rootUploadDir.resolve("general"));
         } catch (IOException e) {
-            System.err.println("Gagal membuat direktori upload: " + e.getMessage());
+            log.error("Gagal menginisialisasi direktori upload di {}: {}", rootUploadDir.toAbsolutePath(), e.getMessage());
         }
     }
 
@@ -105,7 +109,12 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success("File berhasil diupload", responseData));
 
+        } catch (java.nio.file.AccessDeniedException e) {
+            log.error("Izin akses ditolak saat menyimpan file di {}: {}", e.getFile(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Gagal menyimpan file: Izin akses ditolak (Permission Denied) pada folder " + e.getFile() + ". Pastikan volume Docker memiliki izin tulis (write permission)."));
         } catch (IOException e) {
+            log.error("Gagal menyimpan file upload: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Gagal menyimpan file: " + e.getMessage()));
         }
