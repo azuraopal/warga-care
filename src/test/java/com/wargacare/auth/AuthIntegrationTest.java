@@ -60,7 +60,8 @@ class AuthIntegrationTest {
                 "001",
                 "005",
                 "08123456789",
-                "Jl. Merdeka No. 1"
+                "Jl. Merdeka No. 1",
+                null
         );
 
         mockMvc.perform(post("/api/auth/register")
@@ -84,6 +85,7 @@ class AuthIntegrationTest {
                 "password123",
                 "002",
                 "005",
+                null,
                 null,
                 null
         );
@@ -110,6 +112,7 @@ class AuthIntegrationTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -129,6 +132,7 @@ class AuthIntegrationTest {
                 "password123",
                 "003",
                 "005",
+                null,
                 null,
                 null
         );
@@ -154,7 +158,7 @@ class AuthIntegrationTest {
                 "Doni Prasetyo",
                 "doni@example.com",
                 "correctpassword",
-                null, null, null, null
+                null, null, null, null, null
         );
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -179,7 +183,8 @@ class AuthIntegrationTest {
                 "004",
                 "005",
                 "08198765432",
-                "Jl. Pahlawan No. 10"
+                "Jl. Pahlawan No. 10",
+                null
         );
         MvcResult registerResult = mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

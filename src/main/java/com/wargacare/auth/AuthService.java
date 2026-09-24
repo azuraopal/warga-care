@@ -41,7 +41,7 @@ public class AuthService {
             throw new IllegalStateException("Email " + request.getEmail() + " sudah terdaftar. Gunakan email lain.");
         }
 
-        UserRole userRole = UserRole.WARGA;
+        UserRole userRole = request.getRole() != null ? request.getRole() : UserRole.WARGA;
 
         User user = User.builder()
                 .fullName(request.getFullName())

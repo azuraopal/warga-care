@@ -73,7 +73,8 @@ class AuthServiceTest {
                 "001",
                 "005",
                 "08123456789",
-                "Jl. Merdeka No. 1"
+                "Jl. Merdeka No. 1",
+                null
         );
 
         loginRequest = new LoginRequest("budi@example.com", "password123");
