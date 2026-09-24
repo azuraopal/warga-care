@@ -4,6 +4,7 @@ import com.wargacare.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ import java.util.UUID;
 public class FileUploadController {
 
     private final Path rootUploadDir = Paths.get("uploads");
+
+    @Value("${app.public-url:}")
+    private String publicUrl;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
             ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp",
@@ -77,7 +81,20 @@ public class FileUploadController {
 
             Files.copy(file.getInputStream(), destination);
 
-            String fileUrl = "/uploads/" + targetSubFolder + "/" + newFilename;
+            String fileUrl;
+            if (publicUrl != null && !publicUrl.isBlank()) {
+                String base = publicUrl.trim();
+                while (base.endsWith("/")) {
+                    base = base.substring(0, base.length() - 1);
+                }
+                if (base.endsWith("/api")) {
+                    fileUrl = base + "/uploads/" + targetSubFolder + "/" + newFilename;
+                } else {
+                    fileUrl = base + "/api/uploads/" + targetSubFolder + "/" + newFilename;
+                }
+            } else {
+                fileUrl = "/uploads/" + targetSubFolder + "/" + newFilename;
+            }
             Map<String, String> responseData = Map.of(
                     "url", fileUrl,
                     "filename", newFilename,

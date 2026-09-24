@@ -54,6 +54,9 @@ springdoc:
 gemini:
   api:
     key: ${GEMINI_API_KEY:}
+
+app:
+  public-url: ${APP_PUBLIC_URL:}
     
 management:
   endpoints:
