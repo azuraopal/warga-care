@@ -19,7 +19,7 @@ public class PayIuranRequest {
 
     @NotBlank(message = "Periode bulan harus diisi")
     @Size(max = 10, message = "Periode bulan maksimal 10 karakter")
-    private String periodMonth; // format YYYY-MM e.g. 2026-08
+    private String periodMonth;
 
     @DecimalMin(value = "0.01", message = "Nominal pembayaran harus lebih besar dari 0")
     private BigDecimal amount;

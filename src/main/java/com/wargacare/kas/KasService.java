@@ -62,18 +62,24 @@ public class KasService {
         if (totalExpense == null) totalExpense = BigDecimal.ZERO;
         BigDecimal currentBalance = totalIncome.subtract(totalExpense);
 
-        String currentYearMonth = LocalDate.now().toString().substring(0, 7);
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
         List<KasTransaction> allTxs = kasTransactionRepository.findByRtOrderByDateDescCreatedAtDesc(targetRt);
 
-        BigDecimal monthIncome = allTxs.stream()
-                .filter(t -> t.getType() == KasType.INCOME && t.getDate() != null && t.getDate().toString().startsWith(currentYearMonth))
-                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal monthExpense = allTxs.stream()
-                .filter(t -> t.getType() == KasType.EXPENSE && t.getDate() != null && t.getDate().toString().startsWith(currentYearMonth))
-                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal monthIncome = BigDecimal.ZERO;
+        BigDecimal monthExpense = BigDecimal.ZERO;
+        for (KasTransaction t : allTxs) {
+            LocalDate d = t.getDate();
+            if (d != null && d.getYear() == currentYear && d.getMonthValue() == currentMonth) {
+                BigDecimal amt = t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO;
+                if (t.getType() == KasType.INCOME) {
+                    monthIncome = monthIncome.add(amt);
+                } else if (t.getType() == KasType.EXPENSE) {
+                    monthExpense = monthExpense.add(amt);
+                }
+            }
+        }
 
         return KasSummaryResponse.builder()
                 .rt(targetRt)

@@ -12,5 +12,5 @@ public class RegisterWargaRequest {
     @NotBlank(message = "Nama warga wajib diisi")
     private String wargaName;
     private String blockAddress;
-    private WargaCategory category; // PELAJAR or PEKERJA
+    private WargaCategory category;
 }

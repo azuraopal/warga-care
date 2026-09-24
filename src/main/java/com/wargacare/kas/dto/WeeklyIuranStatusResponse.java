@@ -19,10 +19,10 @@ public class WeeklyIuranStatusResponse {
     private String categoryLabel;
     private BigDecimal weeklyDuesRate;
     private String periodWeek;
-    private Boolean isPaid; // true = LUNAS, false = MENUNGGAK
+    private Boolean isPaid;
     private LocalDate paidDate;
     private String paymentMethod;
     private String recordedBy;
-    private Integer totalArrearsWeeks; // count of unpaid weeks for this resident
+    private Integer totalArrearsWeeks;
     private BigDecimal totalArrearsAmount;
 }

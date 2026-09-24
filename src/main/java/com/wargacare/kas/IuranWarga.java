@@ -45,7 +45,7 @@ public class IuranWarga {
     private String periodMonth;
 
     @Column(name = "period_week", length = 10)
-    private String periodWeek; // e.g. "2026-W33"
+    private String periodWeek;
 
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     @Builder.Default
