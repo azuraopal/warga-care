@@ -103,6 +103,23 @@ class AuthServiceTest {
     }
 
     @Test
+    @DisplayName("register() - Berhasil mendaftarkan pengguna baru dengan role ADMIN_RT")
+    void register_WithAdminRtRole() throws Exception {
+        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+        RegisterRequest fromJson = om.readValue("{\"fullName\":\"Admin\",\"email\":\"admin@test.com\",\"password\":\"password123\",\"role\":\"ADMIN_RT\"}", RegisterRequest.class);
+        assertThat(fromJson.getRole()).isEqualTo(UserRole.ADMIN_RT);
+
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed_password");
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(jwtUtil.generateToken(any(UserDetails.class))).thenReturn("jwt_token");
+        when(jwtUtil.getExpiration()).thenReturn(86400000L);
+
+        var result = authService.register(fromJson);
+        assertThat(result.getUser().getRole()).isEqualTo(UserRole.ADMIN_RT);
+    }
+
+    @Test
     @DisplayName("register() - Gagal jika email sudah terdaftar")
     void register_DuplicateEmail_ThrowsException() {
         when(userRepository.existsByEmail("budi@example.com")).thenReturn(true);
