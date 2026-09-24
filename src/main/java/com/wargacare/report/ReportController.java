@@ -17,10 +17,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.CopyOnWriteArrayList;
 @RestController
 @RequestMapping("/api/reports")
 @Tag(name = "Reports", description = "Endpoint untuk manajemen laporan pengaduan warga")
@@ -32,6 +34,7 @@ public class ReportController {
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
     }
+    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @GetMapping("/categories")
     @Operation(summary = "Daftar kategori laporan", description = "Mendapatkan daftar semua kategori laporan pengaduan")
@@ -86,6 +89,7 @@ public class ReportController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CreateReportRequest request) {
         ReportResponse response = reportService.createReport(userDetails.getUsername(), request);
+        broadcastNewReport(response);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Laporan berhasil dibuat", response));
@@ -155,17 +159,45 @@ public class ReportController {
     @GetMapping(value = "/stream", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Stream notifikasi realtime pengaduan (SSE)",
                description = "Koneksi Server-Sent Events (SSE) untuk notifikasi pengaduan warga secara realtime")
-    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter streamReports() {
-        org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter = 
-                new org.springframework.web.servlet.mvc.method.annotation.SseEmitter(30 * 60 * 1000L);
+    public SseEmitter streamReports() {
+        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+        emitters.add(emitter);
+
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitter.onTimeout(() -> {
+            emitters.remove(emitter);
+            emitter.complete();
+        });
+        emitter.onError(e -> {
+            emitters.remove(emitter);
+            emitter.complete();
+        });
+
         try {
-            emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event()
+            emitter.send(SseEmitter.event()
                     .name("INIT")
                     .data("Koneksi SSE WargaCare berhasil terhubung"));
         } catch (Exception e) {
+            emitters.remove(emitter);
             emitter.completeWithError(e);
         }
         return emitter;
+    }
+
+    private void broadcastNewReport(ReportResponse report) {
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("NEW_REPORT")
+                        .data(report));
+            } catch (Exception e) {
+                emitters.remove(emitter);
+                try {
+                    emitter.complete();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,7 @@
 package com.wargacare.dashboard;
 
 import com.wargacare.announcement.AnnouncementRepository;
+import com.wargacare.common.ResourceNotFoundException;
 import com.wargacare.dashboard.dto.DashboardResponse;
 import com.wargacare.event.EventRepository;
 import com.wargacare.report.ReportRepository;
@@ -43,7 +44,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse getDashboardStatsForUserEmail(String email) {
         com.wargacare.user.User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Pengguna tidak ditemukan"));
         return getDashboardStatsForUser(user.getId());
     }
 

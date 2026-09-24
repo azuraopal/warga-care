@@ -7,9 +7,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.Map;
 public class ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatService.class);
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=";
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
 
     @Value("${gemini.api.key}")
     private String geminiApiKey;
@@ -27,12 +29,21 @@ public class ChatService {
     private final RestTemplate restTemplate;
 
     public ChatService() {
-        this.restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(10));
+        factory.setReadTimeout(Duration.ofSeconds(30));
+        this.restTemplate = new RestTemplate(factory);
     }
 
     public String getChatResponse(String userMessage) {
-        String url = GEMINI_API_URL + geminiApiKey;
-
+        if (geminiApiKey == null || geminiApiKey.isBlank()) {
+            log.warn("Gemini API key is not configured");
+            return "Maaf, fitur asisten virtual AI saat ini belum dikonfigurasi oleh administrator.";
+        }
+        if (userMessage == null || userMessage.isBlank()) {
+            return "Silakan masukkan pertanyaan Anda seputar lingkungan warga.";
+        }
+        String url = GEMINI_API_URL + geminiApiKey.trim();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

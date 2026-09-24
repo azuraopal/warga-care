@@ -1,6 +1,5 @@
 package com.wargacare.event.dto;
 
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +20,6 @@ public class UpdateEventRequest {
     @Size(min = 10, max = 5000, message = "Deskripsi harus antara 10-5000 karakter")
     private String description;
 
-    @FutureOrPresent(message = "Tanggal kegiatan harus di masa depan atau hari ini")
     private LocalDateTime eventDate;
 
     @Size(max = 255, message = "Lokasi maksimal 255 karakter")

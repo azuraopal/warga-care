@@ -25,7 +25,7 @@ public class FileUploadController {
     private final Path rootUploadDir = Paths.get("uploads");
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-            ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg",
+            ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp",
             ".heic", ".heif", ".tiff", ".tif", ".avif"
     );
 

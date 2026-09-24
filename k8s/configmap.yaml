@@ -4,6 +4,6 @@ metadata:
   name: wargacare-config
   namespace: wargacare
 data:
-  SPRING_DATASOURCE_URL: "jdbc:mariadb://mariadb-service:3306/db"
-  SPRING_DATASOURCE_USERNAME: "db"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/wargacare"
+  SPRING_DATASOURCE_USERNAME: "postgres"
   SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"

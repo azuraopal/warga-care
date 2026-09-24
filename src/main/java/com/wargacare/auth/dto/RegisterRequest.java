@@ -1,6 +1,5 @@
 package com.wargacare.auth.dto;
 
-import com.wargacare.user.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,16 +34,5 @@ public class RegisterRequest {
 
     private String address;
 
-    private UserRole role;
-
-    public RegisterRequest(String fullName, String email, String password, String rt, String rw, String phone, String address) {
-        this.fullName = fullName;
-        this.email = email;
-        this.password = password;
-        this.rt = rt;
-        this.rw = rw;
-        this.phone = phone;
-        this.address = address;
-    }
 }
 

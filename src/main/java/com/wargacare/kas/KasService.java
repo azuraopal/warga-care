@@ -45,6 +45,12 @@ public class KasService {
         }
         return "RT 01";
     }
+    private String getCurrentIsoWeek() {
+        LocalDate now = LocalDate.now();
+        int week = now.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        int year = now.get(java.time.temporal.IsoFields.WEEK_BASED_YEAR);
+        return String.format("%d-W%02d", year, week);
+    }
 
     public KasSummaryResponse getSummary() {
         User currentUser = getCurrentUser();
@@ -52,19 +58,21 @@ public class KasService {
 
         BigDecimal totalIncome = kasTransactionRepository.sumAmountByRtAndType(targetRt, KasType.INCOME);
         BigDecimal totalExpense = kasTransactionRepository.sumAmountByRtAndType(targetRt, KasType.EXPENSE);
+        if (totalIncome == null) totalIncome = BigDecimal.ZERO;
+        if (totalExpense == null) totalExpense = BigDecimal.ZERO;
         BigDecimal currentBalance = totalIncome.subtract(totalExpense);
 
         String currentYearMonth = LocalDate.now().toString().substring(0, 7);
         List<KasTransaction> allTxs = kasTransactionRepository.findByRtOrderByDateDescCreatedAtDesc(targetRt);
 
         BigDecimal monthIncome = allTxs.stream()
-                .filter(t -> t.getType() == KasType.INCOME && t.getDate().toString().startsWith(currentYearMonth))
-                .map(KasTransaction::getAmount)
+                .filter(t -> t.getType() == KasType.INCOME && t.getDate() != null && t.getDate().toString().startsWith(currentYearMonth))
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal monthExpense = allTxs.stream()
-                .filter(t -> t.getType() == KasType.EXPENSE && t.getDate().toString().startsWith(currentYearMonth))
-                .map(KasTransaction::getAmount)
+                .filter(t -> t.getType() == KasType.EXPENSE && t.getDate() != null && t.getDate().toString().startsWith(currentYearMonth))
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return KasSummaryResponse.builder()
@@ -204,7 +212,7 @@ public class KasService {
     public List<WeeklyIuranStatusResponse> getIuranWeekly(String periodWeek) {
         User currentUser = getCurrentUser();
         String targetRt = getTargetRt(currentUser);
-        String targetWeek = (periodWeek != null && !periodWeek.isBlank()) ? periodWeek : "2026-W33";
+        String targetWeek = (periodWeek != null && !periodWeek.isBlank()) ? periodWeek : getCurrentIsoWeek();
 
         List<WargaMaster> masterList = wargaMasterRepository.findByRtOrderByWargaNameAsc(targetRt);
         List<IuranWarga> paidWeeklyList = iuranWargaRepository.findByRtAndPeriodWeek(targetRt, targetWeek);
@@ -228,11 +236,8 @@ public class KasService {
             }
 
             boolean isPaid = paidRecord != null && Boolean.TRUE.equals(paidRecord.getIsPaid());
-
-            List<IuranWarga> allPaidForResident = iuranWargaRepository.findByRtAndWargaMasterId(targetRt, wm.getId());
-            long paidCount = allPaidForResident.stream().filter(i -> Boolean.TRUE.equals(i.getIsPaid())).count();
-            int totalArrearsWeeks = (int) Math.max(0, 1 - (isPaid ? 1 : 0)); // Simplified for active week
-            BigDecimal totalArrearsAmount = wm.getCategory().getWeeklyDuesRate().multiply(new BigDecimal(totalArrearsWeeks));
+            BigDecimal weeklyRate = wm.getCategory() != null ? wm.getCategory().getWeeklyDuesRate() : new BigDecimal("5000.00");
+            String categoryLabel = wm.getCategory() != null ? wm.getCategory().getLabel() : "Sudah Bekerja";
 
             result.add(WeeklyIuranStatusResponse.builder()
                     .wargaMasterId(wm.getId())
@@ -240,15 +245,15 @@ public class KasService {
                     .blockAddress(wm.getBlockAddress())
                     .rt(targetRt)
                     .category(wm.getCategory())
-                    .categoryLabel(wm.getCategory().getLabel())
-                    .weeklyDuesRate(wm.getCategory().getWeeklyDuesRate())
+                    .categoryLabel(categoryLabel)
+                    .weeklyDuesRate(weeklyRate)
                     .periodWeek(targetWeek)
                     .isPaid(isPaid)
                     .paidDate(isPaid ? paidRecord.getPaidDate() : null)
                     .paymentMethod(isPaid ? paidRecord.getPaymentMethod() : null)
                     .recordedBy(isPaid ? paidRecord.getRecordedBy() : null)
                     .totalArrearsWeeks(isPaid ? 0 : 1)
-                    .totalArrearsAmount(isPaid ? BigDecimal.ZERO : wm.getCategory().getWeeklyDuesRate())
+                    .totalArrearsAmount(isPaid ? BigDecimal.ZERO : weeklyRate)
                     .build());
         }
 
@@ -263,12 +268,15 @@ public class KasService {
         }
 
         String targetRt = getTargetRt(currentUser);
-        String targetWeek = (request.getPeriodWeek() != null && !request.getPeriodWeek().isBlank()) ? request.getPeriodWeek() : "2026-W33";
+        String targetWeek = (request.getPeriodWeek() != null && !request.getPeriodWeek().isBlank()) ? request.getPeriodWeek() : getCurrentIsoWeek();
 
         WargaMaster master;
         if (request.getWargaMasterId() != null) {
             master = wargaMasterRepository.findById(request.getWargaMasterId())
                     .orElseThrow(() -> new ResourceNotFoundException("Data Warga Master tidak ditemukan"));
+            if (!master.getRt().equalsIgnoreCase(targetRt)) {
+                throw new AccessDeniedException("Data warga bukan bagian dari " + targetRt);
+            }
         } else {
             String nameToUse = request.getWargaName();
             if (nameToUse == null || nameToUse.isBlank()) {
@@ -288,12 +296,25 @@ public class KasService {
             }
         }
 
-        BigDecimal duesAmount = request.getAmount() != null ? request.getAmount() : master.getCategory().getWeeklyDuesRate();
+        WargaCategory category = master.getCategory() != null ? master.getCategory() : WargaCategory.PEKERJA;
+        BigDecimal duesAmount = request.getAmount() != null ? request.getAmount() : category.getWeeklyDuesRate();
+        if (duesAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Nominal iuran harus lebih besar dari 0");
+        }
 
         Optional<IuranWarga> existingIuran = iuranWargaRepository.findByRtAndWargaMasterIdAndPeriodWeek(targetRt, master.getId(), targetWeek);
+        if (existingIuran.isEmpty() && master.getWargaName() != null) {
+            existingIuran = iuranWargaRepository.findByRtAndWargaNameAndPeriodWeek(targetRt, master.getWargaName(), targetWeek);
+        }
+        if (existingIuran.isPresent() && Boolean.TRUE.equals(existingIuran.get().getIsPaid())) {
+            throw new IllegalStateException("Iuran mingguan warga " + master.getWargaName() + " untuk periode " + targetWeek + " sudah tercatat lunas.");
+        }
+
+        String currentMonth = LocalDate.now().toString().substring(0, 7);
         IuranWarga iuran;
         if (existingIuran.isPresent()) {
             iuran = existingIuran.get();
+            iuran.setWargaMasterId(master.getId());
             iuran.setIsPaid(true);
             iuran.setPaidDate(LocalDate.now());
             iuran.setAmount(duesAmount);
@@ -305,7 +326,7 @@ public class KasService {
                     .wargaName(master.getWargaName())
                     .blockAddress(master.getBlockAddress())
                     .rt(targetRt)
-                    .periodMonth(targetWeek.substring(0, 7))
+                    .periodMonth(currentMonth)
                     .periodWeek(targetWeek)
                     .amount(duesAmount)
                     .isPaid(true)
@@ -324,7 +345,7 @@ public class KasService {
                 .category("Iuran Mingguan")
                 .date(LocalDate.now())
                 .recordedBy(currentUser.getFullName() + " (Admin " + targetRt + ")")
-                .notes("Kategori: " + master.getCategory().getLabel() + " | Metode: " + (request.getPaymentMethod() != null ? request.getPaymentMethod() : "Tunai"))
+                .notes("Kategori: " + category.getLabel() + " | Metode: " + (request.getPaymentMethod() != null ? request.getPaymentMethod() : "Tunai"))
                 .build();
         kasTransactionRepository.save(incomeTx);
 
@@ -333,8 +354,8 @@ public class KasService {
                 .wargaName(master.getWargaName())
                 .blockAddress(master.getBlockAddress())
                 .rt(targetRt)
-                .category(master.getCategory())
-                .categoryLabel(master.getCategory().getLabel())
+                .category(category)
+                .categoryLabel(category.getLabel())
                 .weeklyDuesRate(duesAmount)
                 .periodWeek(targetWeek)
                 .isPaid(true)
@@ -371,9 +392,15 @@ public class KasService {
 
         String targetRt = getTargetRt(currentUser);
         BigDecimal amount = request.getAmount() != null ? request.getAmount() : new BigDecimal("50000.00");
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Nominal iuran harus lebih besar dari 0");
+        }
         String period = request.getPeriodMonth() != null ? request.getPeriodMonth() : LocalDate.now().toString().substring(0, 7);
 
         Optional<IuranWarga> existing = iuranWargaRepository.findByRtAndWargaNameAndPeriodMonth(targetRt, request.getWargaName(), period);
+        if (existing.isPresent() && Boolean.TRUE.equals(existing.get().getIsPaid())) {
+            throw new IllegalStateException("Iuran bulanan warga " + request.getWargaName() + " untuk periode " + period + " sudah tercatat lunas.");
+        }
 
         IuranWarga iuran;
         if (existing.isPresent()) {

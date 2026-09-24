@@ -41,6 +41,7 @@ class AuthIntegrationTest {
         registry.add("spring.flyway.enabled", () -> "true");
         registry.add("jwt.secret", () -> "test-secret-key-for-integration-testing-256bits-long");
         registry.add("jwt.expiration", () -> "86400000");
+        registry.add("gemini.api.key", () -> "test-gemini-key");
     }
 
     @Autowired

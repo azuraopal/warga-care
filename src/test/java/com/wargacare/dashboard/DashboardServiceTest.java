@@ -3,6 +3,9 @@ package com.wargacare.dashboard;
 import com.wargacare.announcement.AnnouncementRepository;
 import com.wargacare.dashboard.dto.DashboardResponse;
 import com.wargacare.event.EventRepository;
+import com.wargacare.common.ResourceNotFoundException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.Optional;
 import com.wargacare.report.ReportRepository;
 import com.wargacare.report.ReportStatus;
 import com.wargacare.user.UserRepository;
@@ -50,5 +53,15 @@ class DashboardServiceTest {
         assertThat(response.getTotalLaporanPending()).isEqualTo(5L);
         assertThat(response.getTotalPengumuman()).isEqualTo(10L);
         assertThat(response.getTotalKegiatan()).isEqualTo(2L);
+    }
+
+    @Test
+    @DisplayName("Ambil statistik dashboard gagal ketika user tidak ditemukan")
+    void getDashboardStatsForUserEmail_userNotFound() {
+        when(userRepository.findByEmail("unknown@wargacare.id")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> dashboardService.getDashboardStatsForUserEmail("unknown@wargacare.id"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("tidak ditemukan");
     }
 }

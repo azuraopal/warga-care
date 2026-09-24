@@ -43,6 +43,7 @@ jobs:
         SPRING_DATASOURCE_PASSWORD: postgres
         JWT_SECRET: wargacare-github-actions-secret-key-256bit-long
         JWT_EXPIRATION: 3600000
+        GEMINI_API_KEY: dummy-test-key
 
     - name: Build Docker Image
       run: docker build -t wargacare-backend:latest .
