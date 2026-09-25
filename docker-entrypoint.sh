@@ -9,7 +9,6 @@ DEFAULT_JVM_OPTS="-XX:+UseContainerSupport \
 -Xss512k \
 -XX:+UseG1GC \
 -XX:G1PeriodicGCInterval=15000 \
--XX:+G1PeriodicGCSys \
 -XX:+UseStringDeduplication \
 -XX:+ExitOnOutOfMemoryError \
 -Djava.security.egd=file:/dev/./urandom"
